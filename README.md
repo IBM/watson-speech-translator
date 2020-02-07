@@ -24,7 +24,7 @@ When you have completed this code pattern, you will understand how to:
 * Integrate Speech to Text, Language Translator, and Text to Speech in a web app
 * Use React components and a Node.js server
 
-> **NOTE**: This code pattern includes instructions for running Watson services with either IBM Cloud Pak for Data or on IBM Cloud.
+> **NOTE**: This code pattern includes instructions for running Watson services on IBM Cloud or with the Watson API Kit on IBM Cloud Pak for Data.
 > Click [here](https://www.ibm.com/products/cloud-pak-for-data) for more information about IBM Cloud Pak for Data.
 
 ![architecture](doc/source/images/architecture.png)
