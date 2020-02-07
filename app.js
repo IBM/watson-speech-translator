@@ -42,7 +42,8 @@ if (sttAuthType === 'cp4d') {
     new Cp4dTokenManager({
       username: process.env.SPEECH_TO_TEXT_USERNAME,
       password: process.env.SPEECH_TO_TEXT_PASSWORD,
-      url: process.env.SPEECH_TO_TEXT_URL
+      url: process.env.SPEECH_TO_TEXT_AUTH_URL,
+      disableSslVerification: process.env.SPEECH_TO_TEXT_AUTH_DISABLE_SSL || false
     });
 } else if (sttAuthType === 'iam') {
   tokenManager = new IamTokenManager({ apikey: process.env.SPEECH_TO_TEXT_APIKEY, });
@@ -150,6 +151,7 @@ app.get('/api/v1/credentials', async (req, res, next) => {
         serviceUrl: sttUrl,
       });
     } catch (err) {
+      console.log("Error:", err);
       next(err);
     }
   } else if (process.env.SPEECH_TO_TEXT_BEARER_TOKEN) {
@@ -160,29 +162,6 @@ app.get('/api/v1/credentials', async (req, res, next) => {
   } else {
     console.log("Failed to get a tokenManager or a bearertoken.");
   }
-});
-
-// speech to text token endpoint
-app.use('/api/speech-to-text/token', function(req, res) {
-
-  const sttAuthService = new AuthorizationV1({
-    authenticator: sttAuthenticator,
-    url: process.env.SPEECH_TO_TEXT_AUTH_URL || 'https://stream.watsonplatform.net/authorization/api'
-  });
-
-  sttAuthService.getToken(function(err, response) {
-    if (err) {
-      console.log('Error retrieving token: ', err);
-      res.status(500).send('Error retrieving token');
-      return;
-    }
-    const token = response.token || response;
-    if (process.env.SPEECH_TO_TEXT_APIKEY) {
-      res.json({ accessToken: token, url: sttUrl });
-    } else {
-      res.json({ token: token, url: sttUrl });
-    }
-  });
 });
 
 /**

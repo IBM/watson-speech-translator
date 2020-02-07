@@ -94,6 +94,7 @@ export default class Demo extends Component {
 
     this.audioElementRef = React.createRef();
 
+    this.fetchToken = this.fetchToken.bind(this);
     this.onSpeak = this.onSpeak.bind(this);
     this.onModelChange = this.onModelChange.bind(this);
     this.onVoiceChange = this.onVoiceChange.bind(this);

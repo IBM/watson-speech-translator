@@ -18,23 +18,21 @@ a language and voice and then enable translation (and speech).
 
 When you have completed this code pattern, you will understand how to:
 
-* Stream audio to Speech To Text using a WebSocket
+* Stream audio to Speech to Text using a WebSocket
 * Use Language Translator with a REST API
 * Retrieve and play audio from Speech to Text using a REST API
-* Integrate Speech To Text, Language Translator, and Text To Speech in a web app
+* Integrate Speech to Text, Language Translator, and Text to Speech in a web app
 * Use React components and a Node.js server
 
 > **NOTE**: This code pattern includes instructions for running Watson services with either IBM Cloud Pak for Data or on IBM Cloud.
 > Click [here](https://www.ibm.com/products/cloud-pak-for-data) for more information about IBM Cloud Pak for Data.
 
-<!-- TODO:
 ![architecture](doc/source/images/architecture.png)
--->
 
 ## Flow
 
 1. User presses the microphone button and captures the input audio.
-1. The audio is streamed to Speech To Text using a WebSocket.
+1. The audio is streamed to Speech to Text using a WebSocket.
 1. The transcribed text from Speech to Text is displayed and updated.
 1. The transcribed text is sent to Language Translator and the translated text is displayed and updated.
 1. Completed phrases are sent to Text to Speech and the result audio is automatically played.
