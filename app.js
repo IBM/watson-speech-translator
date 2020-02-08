@@ -19,6 +19,7 @@ const express = require('express');
 const app = express();
 
 const sdkCore = require('ibm-cloud-sdk-core');
+const vcapServices = require('vcap_services');
 
 const AuthorizationV1 = require('ibm-watson/authorization/v1');
 const LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
@@ -27,6 +28,8 @@ const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1.js');
 
 const { IamTokenManager } = require('ibm-watson/auth');
 const { Cp4dTokenManager } = require('ibm-watson/auth');
+
+let sttUrl = process.env.SPEECH_TO_TEXT_URL;
 
 // Ensure we have a SPEECH_TO_TEXT_AUTH_TYPE so we can get a token for the UI.
 let sttAuthType =  process.env.SPEECH_TO_TEXT_AUTH_TYPE;
@@ -46,7 +49,15 @@ if (sttAuthType === 'cp4d') {
       disableSslVerification: process.env.SPEECH_TO_TEXT_AUTH_DISABLE_SSL || false
     });
 } else if (sttAuthType === 'iam') {
-  tokenManager = new IamTokenManager({ apikey: process.env.SPEECH_TO_TEXT_APIKEY, });
+  let apikey = process.env.SPEECH_TO_TEXT_APIKEY;
+  if (!(apikey && sttUrl)) {
+    // If no runtime env override for both, then try VCAP_SERVICES.
+    let vcapCredentials = vcapServices.getCredentials('speech_to_text');
+    // Env override still takes precedence.
+    apikey = apikey || vcapCredentials.apikey
+    sttUrl = sttUrl || vcapCredentials.url
+  }
+  tokenManager = new IamTokenManager({ apikey });
 } else if (sttAuthType === 'bearertoken') {
   console.log("SPEECH_TO_TEXT_AUTH_TYPE=bearertoken is for dev use only.");
 } else {
@@ -136,9 +147,6 @@ const getFileExtension = (acceptQuery) => {
 app.get('/', (req, res) => {
   res.render('index');
 });
-
-
-const sttUrl = process.env.SPEECH_TO_TEXT_URL || SpeechToTextV1.URL;
 
 // Get credentials using your credentials
 app.get('/api/v1/credentials', async (req, res, next) => {
