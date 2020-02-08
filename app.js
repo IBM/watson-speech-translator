@@ -67,7 +67,6 @@ if (sttAuthType === 'cp4d') {
   console.log("SPEECH_TO_TEXT_AUTH_TYPE =", sttAuthType);
   console.log("SPEECH_TO_TEXT_AUTH_TYPE is not recognized.");
 }
-const sttAuthenticator = sdkCore.getAuthenticatorFromEnvironment('speech-to-text');
 
 // Init the APIs using environment-defined auth (default behavior).
 const speechToText = new SpeechToTextV1({ version: '2019-12-16' });
