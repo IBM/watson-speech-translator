@@ -53,13 +53,10 @@ if (sttAuthType === 'cp4d') {
   if (!(apikey && sttUrl)) {
     // If no runtime env override for both, then try VCAP_SERVICES.
     let vcapCredentials = vcapServices.getCredentials('speech_to_text');
-    console.log("VCAP: ", vcapCredentials);
     // Env override still takes precedence.
     apikey = apikey || vcapCredentials.apikey
     sttUrl = sttUrl || vcapCredentials.url
   }
-  console.log("sttUrl: ", sttUrl);
-  console.log("apikey: ", apikey);
   tokenManager = new IamTokenManager({ apikey: apikey, });
 } else if (sttAuthType === 'bearertoken') {
   console.log("SPEECH_TO_TEXT_AUTH_TYPE=bearertoken is for dev use only.");
