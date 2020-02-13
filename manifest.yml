@@ -1,0 +1,22 @@
+---
+declared-services:
+    wst-watson-language-translator:
+        label: language_translator
+        plan: lite
+    wst-speech-to-text:
+        label: speech_to_text
+        plan: lite
+    wst-text-to-speech:
+        label: text_to_speech
+        plan: lite
+applications:
+  - path: .
+    memory: 256M
+    instances: 1
+    name: watson-speech-translator
+    buildpacks:
+      - sdk-for-nodejs
+    services:
+      - wst-watson-language-translator
+      - wst-speech-to-text
+      - wst-text-to-speech

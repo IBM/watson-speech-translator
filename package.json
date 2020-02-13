@@ -40,6 +40,7 @@
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "uglifyify": "^5.0.2",
+    "vcap_services": "^0.7.1",
     "watson-react-components": "^0.6.19",
     "watson-speech": "^0.37.2",
     "whatwg-fetch": "2.0.4"
