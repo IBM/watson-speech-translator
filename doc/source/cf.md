@@ -24,7 +24,7 @@ This document shows how to deploy the server using Cloud Foundry on IBM Cloud.
    * wst-language-translator
    * wst-text-to-speech
 
-7. Click on the app and then click on `Visit App URL` visit the bot's web page.
+7. Click on the app and then click on `Visit App URL` to visit the bot's web page.
 
 ## Run the web app
 
