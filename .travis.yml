@@ -1,0 +1,11 @@
+language: node_js
+dist: trusty
+node_js:
+  - "10"
+  - "node"
+  - "lts/*"
+script:
+- npm run test
+cache:
+  directories:
+  - node_modules
