@@ -18,18 +18,16 @@ This document shows how to deploy the server using Cloud Foundry on IBM Cloud.
 
    ![toolchain_pipeline](images/toolchain_pipeline.png)
 
-6. To see the app and services created and configured for this code pattern, use the [IBM Cloud](https://cloud.ibm.com) dashboard. The app is named `watson-speech-translator` with a unique suffix. The following services are created and easily identified by the `wst-` prefix:
+## Run the web app
+
+1. To see the app and services created and configured for this code pattern, use the [IBM Cloud](https://cloud.ibm.com) dashboard. The app is named `watson-speech-translator` with a unique suffix. The following services are created and easily identified by the `wst-` prefix:
 
    * wst-speech-to-text
    * wst-language-translator
    * wst-text-to-speech
 
-7. Click on the app and then click on `Visit App URL` to visit the bot's web page.
+1. Click on the app and then click on `Visit App URL` to visit the bot's web page.
 
-## Run the web app
-
-* Go back to `Applications` ▷ `Routes`. You will see your app.
-* Click your app's `Hostname`. This will open the Watson Speech Translator web app in your browser.
-* Go back to the README.md for instructions on how to use the app.
+1. Go back to the README.md for instructions on how to use the app.
 
 [![return](https://raw.githubusercontent.com/IBM/pattern-utils/master/deploy-buttons/return.png)](https://github.com/IBM/watson-speech-translator#use-the-web-app)
