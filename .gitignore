@@ -108,3 +108,7 @@ dist
 
 # JetBrains IDEs
 .idea
+
+# Mac Finder junk
+.DS_Store
+
