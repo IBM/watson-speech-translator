@@ -43,8 +43,9 @@ When you have completed this code pattern, you will understand how to:
 2. [Deploy the server](#deploy-the-server)
 3. [Use the web app](#use-the-web-app)
 
-
 ### Create the Watson services
+
+> Note: You can skip this step if you will be using the `Deploy to Cloud Foundry on IBM Cloud` button below. That option automatically creates the services and binds them (providing their credentials) to the application.
 
 Provision the following services:
 
@@ -83,9 +84,9 @@ The services are not available by default. An administrator must install them on
 <h5>Create the service instances</h5>
   <ul>
     <li>If you do not have an IBM Cloud account, register for a free trial account <a href="https://cloud.ibm.com/registration">here</a>.</li>
-    <li>Create a <b>Speech to Text</b> instance from <a href="https://cloud.ibm.com/catalog/services/speech-to-text">the catalog</a>.</li>
-    <li>Create a <b>Language Translator</b> instance from <a href="https://cloud.ibm.com/catalog/services/speech-to-text">the catalog</a>.</li>
-    <li>Create a <b>Text to Speech</b> instance from <a href="https://cloud.ibm.com/catalog/services/speech-to-text">the catalog</a>.</li>
+    <li>Click <a href="https://cloud.ibm.com/catalog/services/speech-to-text">here</a> to create a <b>Speech to Text</b> instance.</li>
+    <li>Click <a href="https://cloud.ibm.com/catalog/services/language-translator">here</a> to create a <b>Language Translator</b> instance.</li>
+    <li>Click <a href="https://cloud.ibm.com/catalog/services/text-to-speech">here</a> to create a <b>Text to Speech</b> instance.</li>
   </ul>
 <h5>Gather credentials</h5>
   <ol>
