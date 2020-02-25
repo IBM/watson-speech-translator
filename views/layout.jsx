@@ -46,9 +46,9 @@ function Layout(props) {
         <Header
           // TODO: Using voice-bot as place-holder. Need final Repo/Page URL if keeping this header.
           mainBreadcrumbs="Code Pattern Page"
-          mainBreadcrumbsUrl="https://developer.ibm.com/patterns/create-a-web-based-voice-chatbot/"
+          mainBreadcrumbsUrl="https://developer.ibm.com/technologies/artificial-intelligence/patterns/build-a-real-time-translation-service-with-watson-api-kit"
           subBreadcrumbs="GitHub Repo"
-          subBreadcrumbsUrl="https://github.com/IBM/watson-voice-bot"
+          subBreadcrumbsUrl="https://github.com/IBM/watson-speech-translator"
         />
         <div id="root">
           {children}
