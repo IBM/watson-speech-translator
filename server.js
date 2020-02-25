@@ -17,6 +17,7 @@
 require('dotenv').config({ silent: true });
 
 const server = require('./app');
+
 const port = process.env.PORT || process.env.VCAP_APP_PORT || 8080;
 
 server.listen(port, () => {

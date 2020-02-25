@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-
-module.exports = (app) => {
+module.exports = app => {
   // catch 404 and forward to error handler
   app.use((req, res, next) => {
     const err = new Error('Not Found');
@@ -29,7 +28,7 @@ module.exports = (app) => {
   app.use((err, req, res, next) => {
     const error = {
       code: err.code || 500,
-      error: err.error || err.message,
+      error: err.error || err.message
     };
     res.status(error.code).json(error);
   });

@@ -25,7 +25,6 @@
     "carbon-components": "^10.9.0",
     "carbon-components-react": "^7.9.0",
     "carbon-icons": "^7.0.7",
-    "casperjs": "^1.1.4",
     "core-js": "^3.4.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -47,25 +46,20 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test-integration": "casperjs test ./test/integration/test.*.js",
-    "test-integration-runner": "NODE_ENV=test node casper-runner.js",
-    "test": "npm run lint && npm run test-unit && npm run test-integration-runner",
-    "test-unit": "mocha test/unit --exit",
+    "test": "npm run lint",
     "lint": "eslint .",
-    "autofix": "eslint --fix .",
-    "codecov": "npm run test && (codecov || true)"
+    "autofix": "eslint --fix ."
   },
   "devDependencies": {
-    "casperjs": "^1.1.4",
-    "codecov": "^3.6.5",
     "eslint": "^6.6.0",
     "eslint-config-airbnb": "^18.0.1",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.16.0",
-    "mocha": "^6.2.2",
-    "phantomjs-prebuilt": "^2.1.16",
-    "supertest": "^4.0.2"
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-react": "^7.18.3",
+    "prettier": "^1.19.1"
   },
   "babel": {
     "presets": [

@@ -19,7 +19,7 @@ cd watson-speech-translator
 
 ### Configure credentials
 
-Copy the **watson-language-translator/env.sample** file to **watson-language-translator/.env**.
+Copy the **env.sample** file to **.env**.
 
 ```bash
 cp env.sample .env
