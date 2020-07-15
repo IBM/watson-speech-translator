@@ -24,6 +24,9 @@ const LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const SpeechToTextV1 = require('ibm-watson/speech-to-text/v1.js');
 const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1.js');
 
+const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
+const { IamAuthenticator } = require('ibm-watson/auth');
+
 const { IamTokenManager } = require('ibm-watson/auth');
 const { Cp4dTokenManager } = require('ibm-watson/auth');
 
@@ -66,6 +69,22 @@ if (sttAuthType === 'cp4d') {
 const speechToText = new SpeechToTextV1({ version: '2019-12-16' });
 const languageTranslator = new LanguageTranslatorV3({ version: '2019-12-16' });
 const textToSpeech = new TextToSpeechV1({ version: '2019-12-16' });
+
+nluApiKey = process.env.NATURAL_LANGUAGE_UNDERSTANDING_APIKEY;
+nluUrl = process.env.NATURAL_LANGUAGE_UNDERSTANDING_URL;
+const naturalLanguageUnderstanding = new NaturalLanguageUnderstandingV1({
+  version: '2019-07-12',
+  authenticator: new IamAuthenticator({
+    apikey: nluApiKey,
+  }),
+  url: nluUrl,
+});
+
+
+
+
+
+
 
 // Get supported source language for Speech to Text
 let speechModels = [];
@@ -172,30 +191,77 @@ app.get('/api/v1/credentials', async (req, res, next) => {
 /**
  * Language Translator
  */
-app.get('/api/v1/translate', async (req, res) => {
-  const inputText = req.query.text;
+// app.get('/api/v1/translate', async (req, res) => {
+//   const inputText = req.query.text;
 
-  const ltParams = {
-    text: inputText,
-    source: req.query.source.substring(0, 2),
-    target: req.query.voice.substring(0, 2)
+//   const ltParams = {
+//     text: inputText,
+//     source: req.query.source.substring(0, 2),
+//     target: req.query.voice.substring(0, 2)
+//   };
+
+//   const doTranslate = ltParams.source !== ltParams.target;
+
+//   try {
+//     // Use language translator only when source language is not equal target language
+//     if (doTranslate) {
+//       const ltResult = await languageTranslator.translate(ltParams);
+//       req.query.text = ltResult.result.translations[0].translation;
+//     } else {
+//       // Same language, skip LT, use input text.
+//       req.query.text = inputText;
+//     }
+
+//     console.log('TRANSLATED:', inputText, ' --->', req.query.text);
+//     res.json({ translated: req.query.text });
+//   } catch (error) {
+//     console.log(error);
+//     res.send(error);
+//   }
+// });
+
+/**
+ * NLU 
+ */
+//NLU
+
+app.get('/api/v1/translate', async (req, res) => {
+
+  const inputText = req.query.text;
+  //console.log(inputText);
+
+  const analyzeParams = 
+  {
+    'text': inputText,
+    'features': {
+      'entities': {
+        'emotion': true,
+        'sentiment': true,
+        'limit': 2,
+      },
+      'keywords': {
+        'emotion': true,
+        'sentiment': true,
+        'limit': 2,
+      },
+    },
   };
 
-  const doTranslate = ltParams.source !== ltParams.target;
+  try 
+  {
+    const ltResult = await naturalLanguageUnderstanding.analyze(analyzeParams);
+    //req.query.text = ltResult.result.translations[0].translation;
 
-  try {
-    // Use language translator only when source language is not equal target language
-    if (doTranslate) {
-      const ltResult = await languageTranslator.translate(ltParams);
-      req.query.text = ltResult.result.translations[0].translation;
-    } else {
-      // Same language, skip LT, use input text.
-      req.query.text = inputText;
-    }
+    naturalLanguageUnderstanding.analyze(analyzeParams)
+    .then(analysisResults => {
+      console.log(JSON.stringify(analysisResults, null, 2));
+    })
 
-    console.log('TRANSLATED:', inputText, ' --->', req.query.text);
-    res.json({ translated: req.query.text });
-  } catch (error) {
+    //console.log('TRANSLATED:', inputText, ' --->', req.query.text);
+    //res.json({ translated: req.query.text });
+  } 
+  catch (error) 
+  {
     console.log(error);
     res.send(error);
   }
