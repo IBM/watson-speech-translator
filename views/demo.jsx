@@ -663,7 +663,7 @@ export default class Demo extends Component {
           </select>;
       } else {
 
-        if (voice.language !== model.language) {
+        // if (voice.language !== model.language) {
           if (translating) {
             ltButton =
               <button type="button" onClick={this.handleTranslateClick}>
@@ -682,7 +682,7 @@ export default class Demo extends Component {
                 <Transcript messages={translatedTranscript} />
               </Pane>
             </Tabs>
-        }
+        // }
         outputVoices =
           <select
             name="voice"
@@ -748,11 +748,13 @@ export default class Demo extends Component {
             </div>
             <div className="row">
               <h2 className="base--h2 title">
-                Output Language and Voice:
+              {/* 
+            Output Language and Voice:
+            */}
               </h2>
-              <div className="voice-input">
+              {/* <div className="voice-input">
                 {outputVoices}
-              </div>
+              </div> */}
               <div className="flex buttons">
                 {ltButton}
                 {ttsCheckbox}
