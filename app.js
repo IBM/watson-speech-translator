@@ -257,19 +257,33 @@ app.get('/api/v1/translate', async (req, res) => {
 
   try 
   {
-    const ltResult = await naturalLanguageUnderstanding.analyze(analyzeParams);
+    //const ltResult = await naturalLanguageUnderstanding.analyze(analyzeParams);
 
-    //req.query.text = await naturalLanguageUnderstanding.analyze(analyzeParams);
+    req.query.text = await naturalLanguageUnderstanding.analyze(analyzeParams);
+    let obj = JSON.stringify(req.query.text, null, 2);
+    let abc = JSON.parse(obj);
+    req.query.text = abc.result.sentiment.document.score;
+
 
     //req.query.text = ltResult.result.translations[0].translation;
 
-    naturalLanguageUnderstanding.analyze(analyzeParams)
-    .then(analysisResults => {
-      //const parseJ = JSON.parse(analysisResults);
-      console.log(JSON.stringify(analysisResults, null, 2));
-      // console.log(JSON.stringify(JSON.parse(analysisResults).score, null, 2));
-    })
+    let outputDemo = '';
 
+    // naturalLanguageUnderstanding.analyze(analyzeParams)
+    // .then(analysisResults => {
+
+    //   let obj = JSON.stringify(analysisResults, null, 2);
+    //   //console.log(obj);
+    //   let abc = JSON.parse(obj);
+    //   //console.log(abc.result.sentiment.document.score);
+    //   outputDemo = abc.result.sentiment.document.score;
+      
+    //   //const parseJ = JSON.parse(analysisResults);
+    //   // console.log(JSON.stringify(analysisResults, null, 2));
+    //   // console.log(JSON.stringify(JSON.parse(analysisResults).score, null, 2));
+    // })
+
+    
 
 
     // let textOut = naturalLanguageUnderstanding.analyze(analyzeParams)
@@ -286,7 +300,10 @@ app.get('/api/v1/translate', async (req, res) => {
     //req.query.text = textOut.stringify();
 
     //console.log('TRANSLATED:', inputText, ' --->', req.query.text);
-    //res.json({ translated: req.query.text });
+
+    // req.query.text = outputDemo;
+    // console.log(outputDemo);
+    await res.json({ translated: 'Score: ' + req.query.text });
   } 
   catch (error) 
   {
