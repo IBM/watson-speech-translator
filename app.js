@@ -286,7 +286,7 @@ app.get('/api/v1/translate', async (req, res) => {
     //req.query.text = textOut.stringify();
 
     //console.log('TRANSLATED:', inputText, ' --->', req.query.text);
-    res.json({ translated: req.query.text });
+    //res.json({ translated: req.query.text });
   } 
   catch (error) 
   {
@@ -300,7 +300,7 @@ app.get('/api/v1/translate', async (req, res) => {
  */
 app.get('/api/v1/synthesize', async (req, res, next) => {
   try {
-    console.log('TEXT-TO-SPEECH:', req.query.text);
+    //console.log('TEXT-TO-SPEECH:', req.query.text);
     const { result } = await textToSpeech.synthesize(req.query);
     const transcript = result;
     transcript.on('response', response => {

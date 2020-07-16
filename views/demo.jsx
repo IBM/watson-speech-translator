@@ -594,7 +594,7 @@ export default class Demo extends Component {
     let transcribedText = '';
     let ttsCheckbox =
       <fieldset className="bx--fieldset">
-        <Checkbox defaultChecked labelText="Enable Text to Speech" onChange={this.onSpeak} id="checked" />
+        <Checkbox defaultChecked labelText="Enable Sentiment" onChange={this.onSpeak} id="checked" />
       </fieldset>;
 
     let audioRefError =
@@ -667,18 +667,18 @@ export default class Demo extends Component {
           if (translating) {
             ltButton =
               <button type="button" onClick={this.handleTranslateClick}>
-                <Icon type='stop' fill={Colors.red_50} /> Stop Translating
+                <Icon type='stop' fill={Colors.red_50} /> Loading Sentiment...
               </button>
           } else {
             ltButton =
               <button type="button" onClick={this.handleTranslateClick}>
-                <Icon type='plus' fill={Colors.purple_50} /> Language Translation
+                <Icon type='plus' fill={Colors.purple_50} /> Sentiment
               </button>
           }
 
           translatedText =
             <Tabs selected={0}>
-              <Pane label="Translated">
+              <Pane label="Sentiment Log">
                 <Transcript messages={translatedTranscript} />
               </Pane>
             </Tabs>
@@ -708,7 +708,7 @@ export default class Demo extends Component {
     } else {
       audioButton =
         <button type="button" onClick={this.handleMicClick}>
-          <Icon type='microphone' fill={Colors.purple_50} /> Speech to Text
+          <Icon type='microphone' fill={Colors.purple_50} /> Speak Here
         </button>
     }
 
@@ -716,12 +716,12 @@ export default class Demo extends Component {
       <section className="_container _container_large">
         <div className="row">
           <h1 className="base--h1 title">
-            <b>Watson Speech Translator</b>
+            <b>Covid Symptom Log</b>
           </h1>
         </div>
         <div className="row">
           <h2 className="base--h2 title">
-            Speech Recognition Model:
+            Please select a language below:
           </h2>
           <div className="voice-input">
             <select
