@@ -248,10 +248,19 @@ app.get('/api/v1/translate', async (req, res) => {
       //   'limit': 2,
       // },
 
-      'sentiment': 
+
+      'emotion': 
       {
-        'document': true
+        'targets': 
+        [
+          'fire',
+        ]
       },
+
+      // 'sentiment': 
+      // {
+      //   'document': true
+      // },
     },
   };
 
@@ -259,10 +268,34 @@ app.get('/api/v1/translate', async (req, res) => {
   {
     //const ltResult = await naturalLanguageUnderstanding.analyze(analyzeParams);
 
+
     req.query.text = await naturalLanguageUnderstanding.analyze(analyzeParams);
     let obj = JSON.stringify(req.query.text, null, 2);
     let abc = JSON.parse(obj);
-    req.query.text = abc.result.sentiment.document.score;
+    req.query.text = abc.result.emotion.targets[0].emotion.fear;
+
+    if(req.query.text > 0.02)
+    {
+      req.query.text = 'FIRE';
+    }
+    else
+    {
+      req.query.text = 'NO FIRE';
+    }
+
+    console.log(req.query.text);
+
+
+    // req.query.text = abc.result.sentiment.document.score;
+
+
+    naturalLanguageUnderstanding.analyze(analyzeParams)
+    .then(analysisResults => {
+    console.log(JSON.stringify(analysisResults, null, 2));
+    })
+
+    console.log(req.query.text);
+
 
 
     //req.query.text = ltResult.result.translations[0].translation;
@@ -303,7 +336,7 @@ app.get('/api/v1/translate', async (req, res) => {
 
     // req.query.text = outputDemo;
     // console.log(outputDemo);
-    await res.json({ translated: 'Score: ' + req.query.text });
+    await res.json({ translated: 'Danger Response: ' + req.query.text });
   } 
   catch (error) 
   {
