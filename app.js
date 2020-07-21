@@ -96,7 +96,7 @@ speechToText
     speechModels = response.result.models.filter(model => model.rate > 8000); // TODO: Make it a .env setting
     // Make description be `[lang] description` so the sort-by-lang makes sense.
     speechModels = speechModels.map(m => ({ ...m, description: `[${m.language}]  ${m.description}` }));
-    speechModels.sort(function(a, b) {  // eslint-disable-line
+    speechModels.sort(function (a, b) {  // eslint-disable-line
       // Sort by 1 - language, 2 - description.
       return a.language.localeCompare(b.language) || a.description.localeCompare(b.description);
     });
@@ -230,31 +230,32 @@ app.get('/api/v1/translate', async (req, res) => {
   const inputText = req.query.text;
   //console.log(inputText);
 
-  const analyzeParams = 
+  const analyzeParams =
   {
     'text': inputText,
-    'features': 
+    'features':
     {
-      // 'entities': 
-      // {
-      //   'emotion': true,
-      //   'sentiment': true,
-      //   'limit': 2,
-      // },
-      // 'keywords': 
-      // {
-      //   'emotion': true,
-      //   'sentiment': true,
-      //   'limit': 2,
-      // },
-
-
-      'emotion': 
+      'entities':
       {
-        'targets': 
-        [
-          'fire',
-        ]
+        //'emotion': true,
+        'sentiment': true,
+        'limit': 2,
+      },
+      'keywords':
+      {
+        'emotion': true,
+        'sentiment': true,
+        'limit': 2,
+      },
+      'concepts': {
+        "limit": 3,
+      },
+      'emotion':
+      {
+        'targets':
+          [
+            'fire',
+          ]
       },
 
       // 'sentiment': 
@@ -264,8 +265,7 @@ app.get('/api/v1/translate', async (req, res) => {
     },
   };
 
-  try 
-  {
+  try {
     //const ltResult = await naturalLanguageUnderstanding.analyze(analyzeParams);
 
 
@@ -274,12 +274,10 @@ app.get('/api/v1/translate', async (req, res) => {
     let abc = JSON.parse(obj);
     req.query.text = abc.result.emotion.targets[0].emotion.fear;
 
-    if(req.query.text > 0.02)
-    {
+    if (req.query.text > 0.02) {
       req.query.text = 'FIRE';
     }
-    else
-    {
+    else {
       req.query.text = 'NO FIRE';
     }
 
@@ -290,9 +288,9 @@ app.get('/api/v1/translate', async (req, res) => {
 
 
     naturalLanguageUnderstanding.analyze(analyzeParams)
-    .then(analysisResults => {
-    console.log(JSON.stringify(analysisResults, null, 2));
-    })
+      .then(analysisResults => {
+        console.log(JSON.stringify(analysisResults, null, 2));
+      })
 
     console.log(req.query.text);
 
@@ -310,13 +308,13 @@ app.get('/api/v1/translate', async (req, res) => {
     //   let abc = JSON.parse(obj);
     //   //console.log(abc.result.sentiment.document.score);
     //   outputDemo = abc.result.sentiment.document.score;
-      
+
     //   //const parseJ = JSON.parse(analysisResults);
     //   // console.log(JSON.stringify(analysisResults, null, 2));
     //   // console.log(JSON.stringify(JSON.parse(analysisResults).score, null, 2));
     // })
 
-    
+
 
 
     // let textOut = naturalLanguageUnderstanding.analyze(analyzeParams)
@@ -337,9 +335,8 @@ app.get('/api/v1/translate', async (req, res) => {
     // req.query.text = outputDemo;
     // console.log(outputDemo);
     await res.json({ translated: 'Danger Response: ' + req.query.text });
-  } 
-  catch (error) 
-  {
+  }
+  catch (error) {
     console.log(error);
     res.send(error);
   }
