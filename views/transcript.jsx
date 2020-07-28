@@ -16,6 +16,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+//asdfas
 
 export default function Transcript(props) {
   try {
