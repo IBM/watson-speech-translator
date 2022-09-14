@@ -64,8 +64,15 @@ if (sttAuthType === 'cp4d') {
 
 // Init the APIs using environment-defined auth (default behavior).
 const speechToText = new SpeechToTextV1({ version: '2019-12-16' });
-const languageTranslator = new LanguageTranslatorV3({ version: '2019-12-16' });
 const textToSpeech = new TextToSpeechV1({ version: '2019-12-16' });
+
+// Optional Language Translator
+let languageTranslator = false;
+try {
+  languageTranslator = new LanguageTranslatorV3({ version: '2019-12-16' });
+} catch (err) {
+  console.log('Error:', err);
+}
 
 // Get supported source language for Speech to Text
 let speechModels = [];
@@ -88,25 +95,28 @@ speechToText
 
 // Get supported language translation targets
 const modelMap = {};
-languageTranslator
-  .listModels()
-  .then(response => {
-    for (const model of response.result.models) {  // eslint-disable-line
-      const { source, target } = model;
-      if (!(source in modelMap)) {
-        modelMap[source] = new Set([target]);
-      } else {
-        modelMap[source].add(target);
+
+if (languageTranslator) {
+  languageTranslator
+    .listModels()
+    .then(response => {
+      for (const model of response.result.models) {  // eslint-disable-line
+        const { source, target } = model;
+        if (!(source in modelMap)) {
+          modelMap[source] = new Set([target]);
+        } else {
+          modelMap[source].add(target);
+        }
       }
-    }
-    // Turn Sets into arrays.
-    for (const k in modelMap) {  // eslint-disable-line
-      modelMap[k] = Array.from(modelMap[k]);
-    }
-  })
-  .catch(err => {
-    console.log('error: ', err);
-  });
+      // Turn Sets into arrays.
+      for (const k in modelMap) {  // eslint-disable-line
+        modelMap[k] = Array.from(modelMap[k]);
+      }
+    })
+    .catch(err => {
+      console.log('error: ', err);
+    });
+}
 
 // Get supported source language for Speech to Text
 let voices = [];
@@ -181,19 +191,20 @@ app.get('/api/v1/translate', async (req, res) => {
     target: req.query.voice.substring(0, 2)
   };
 
-  const doTranslate = ltParams.source !== ltParams.target;
+  const doTranslate = languageTranslator && ltParams.source !== ltParams.target;
 
   try {
     // Use language translator only when source language is not equal target language
     if (doTranslate) {
       const ltResult = await languageTranslator.translate(ltParams);
       req.query.text = ltResult.result.translations[0].translation;
+      console.log('TRANSLATED:', inputText, ' --->', req.query.text);
     } else {
       // Same language, skip LT, use input text.
-      req.query.text = inputText;
+      req.query.text = inputText.toUpperCase();
+      console.log('TRANSLATION SKIPPED:', inputText);
     }
 
-    console.log('TRANSLATED:', inputText, ' --->', req.query.text);
     res.json({ translated: req.query.text });
   } catch (error) {
     console.log(error);
