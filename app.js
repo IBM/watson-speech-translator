@@ -15,6 +15,7 @@
  */
 
 const express = require('express');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -26,6 +27,8 @@ const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1.js');
 
 const { IamTokenManager } = require('ibm-watson/auth');
 const { Cp4dTokenManager } = require('ibm-watson/auth');
+
+const axios = require('axios').default;
 
 let sttUrl = process.env.SPEECH_TO_TEXT_URL;
 
@@ -71,7 +74,19 @@ let languageTranslator = false;
 try {
   languageTranslator = new LanguageTranslatorV3({ version: '2019-12-16' });
 } catch (err) {
-  console.log('Error:', err);
+  console.log('Watson LT Error:', err.toString());
+  console.log('Continuing w/o Watson LT');
+}
+
+// Alternate Language Translator (only if no Watson LT)
+let altLanguageTranslator = false;
+let altLTUrl = false;
+
+if (!languageTranslator) {
+  altLTUrl = process.env.LINGVANEX_URL;
+  if (altLTUrl) {
+    altLanguageTranslator = true;
+  }
 }
 
 // Get supported source language for Speech to Text
@@ -199,12 +214,46 @@ app.get('/api/v1/translate', async (req, res) => {
       const ltResult = await languageTranslator.translate(ltParams);
       req.query.text = ltResult.result.translations[0].translation;
       console.log('TRANSLATED:', inputText, ' --->', req.query.text);
+    } else if (altLanguageTranslator) {
+      ltParams.q = ltParams.text;
+      ltParams.platform = 'api';
+
+      console.log('TRY ALT TRANSLATOR AT: ', altLTUrl);
+      const body = ltParams;
+      const response = await axios({
+        method: 'post',
+        url: altLTUrl,
+        data: body,
+        headers: { accept: 'application/json', 'content-type': 'application/json' }
+      });
+      const data = await response.data;
+      console.log('RESPONSE: ', data);
+      req.query.text = data.translated;
     } else {
       // Same language, skip LT, use input text.
-      req.query.text = inputText.toUpperCase();
       console.log('TRANSLATION SKIPPED:', inputText);
+      req.query.text = inputText;
     }
 
+    res.json({ translated: req.query.text });
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+});
+
+/**
+ * Fake Language Translator endpoint for testing -- just toUpper()
+ */
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.post('/api/v1/upper', async (req, res) => {
+  console.log('IN UPPER         -->', req.body);
+  const inputText = req.body.q;
+  try {
+    req.query.text = inputText.toUpperCase();
+    console.log('TRANSLATED TO UPPER:', inputText, ' --> ', req.query.text);
     res.json({ translated: req.query.text });
   } catch (error) {
     console.log(error);
