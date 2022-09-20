@@ -95,6 +95,7 @@ speechToText
   .listModels()
   .then(response => {
     speechModels = response.result.models; // The whole list
+    console.log('STT MODELS (before filter): ', speechModels);
     // Filter to only show one band.
     speechModels = response.result.models.filter(model => model.rate > 8000); // TODO: Make it a .env setting
     // Make description be `[lang] description` so the sort-by-lang makes sense.
@@ -157,6 +158,7 @@ let voices = [];
 textToSpeech
   .listVoices()
   .then(response => {
+    console.log('TTS VOICES (before filter): ', response.result.voices);
     // There are many redundant voices. For now the V3 ones are the best ones.
     voices = response.result.voices.filter(voice => voice.name.includes('V3')); // TODO: env param.
   })
