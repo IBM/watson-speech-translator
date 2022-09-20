@@ -110,6 +110,7 @@ speechToText
 
 // Get supported language translation targets
 const modelMap = {};
+const altLangs = {};
 
 if (languageTranslator) {
   languageTranslator
@@ -131,6 +132,25 @@ if (languageTranslator) {
     .catch(err => {
       console.log('error: ', err);
     });
+} else if (altLanguageTranslator) {
+    let getLanguagesUrl = altLTUrl + '/get-languages'
+    console.log('GET MODELS FROM: ', getLanguagesUrl);
+
+    axios.get(getLanguagesUrl)
+      .then(function (response) {
+        console.log('GET LANGUAGES RESPONSE: ', response.data);
+        let langs = new Set()
+        for (const l in response.data) {  // eslint-disable-line
+          console.log('LANG: ', response.data[l]);
+          langs.add(response.data[l].code_alpha_1) // collect list of langs
+        }
+        langs = Array.from(langs)
+        for (const l in response.data) {  // eslint-disable-line
+          modelMap[response.data[l].code_alpha_1] = langs // anything-to-anything
+          altLangs[response.data[l].code_alpha_1] = response.data[l].codeName;
+        }
+        console.log("MODEL MAP: ", modelMap);
+      });
 }
 
 // Get supported source language for Speech to Text
@@ -222,13 +242,13 @@ app.get('/api/v1/translate', async (req, res) => {
       const body = ltParams;
       const response = await axios({
         method: 'post',
-        url: altLTUrl,
+        url: altLTUrl + '/translate',
         data: body,
         headers: { accept: 'application/json', 'content-type': 'application/json' }
       });
       const data = await response.data;
       console.log('RESPONSE: ', data);
-      req.query.text = data.translated;
+      req.query.text = data.translatedText;
     } else {
       // Same language, skip LT, use input text.
       console.log('TRANSLATION SKIPPED:', inputText);
@@ -285,6 +305,21 @@ app.get('/api/v1/synthesize', async (req, res, next) => {
 // Return the models, voices, and supported translations.
 app.get('/api/v1/voices', async (req, res, next) => {
   try {
+
+    // Add languages w/o voices (specifically for alternate translators)
+    for (const i in altLangs) {  // eslint-disable-line
+        if (voices.filter(voice => i === voice.language.substring(0,2)).length < 1) {
+          // if this alt lang is not in voices, add a voice-less entry.
+          voices.push(
+            {
+              name: i,
+              description: altLangs[i] + " translation without voice.",
+              language: i,
+              url: '' // NO TTS URL!
+            })
+        }
+    }
+
     res.json({
       modelMap,
       models: speechModels,

@@ -280,7 +280,7 @@ export default class Demo extends Component {
         }
         this.setState({ translatedResults });
 
-        if (speaking) {
+        if (speaking && this.state.voice.url != '') {
           let text = false;
           if (sayAll) {
             // Say all the translated values (to catch-up when button is pushed).
@@ -528,7 +528,7 @@ export default class Demo extends Component {
       text: null,
     });
 
-    if (this.state.translating) {
+    if (this.state.translating && this.state.voice.url != '') {
       this.doLanguageTranslation(true);
     }
   }
@@ -593,7 +593,7 @@ export default class Demo extends Component {
 
     let transcribedText = '';
     let ttsCheckbox =
-      <fieldset className="bx--fieldset">
+      <fieldset className={`bx--fieldset ${voice && voice.url === '' ? 'hidden' : ''}`}>
         <Checkbox defaultChecked labelText="Enable Text to Speech" onChange={this.onSpeak} id="checked" />
       </fieldset>;
 
