@@ -1,7 +1,7 @@
 language: node_js
-dist: trusty
+dist: focal
 node_js:
-  - "10"
+  - "14"
   - "node"
   - "lts/*"
 script:

@@ -15,6 +15,7 @@
  */
 
 const express = require('express');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -26,6 +27,8 @@ const TextToSpeechV1 = require('ibm-watson/text-to-speech/v1.js');
 
 const { IamTokenManager } = require('ibm-watson/auth');
 const { Cp4dTokenManager } = require('ibm-watson/auth');
+
+const axios = require('axios').default;
 
 let sttUrl = process.env.SPEECH_TO_TEXT_URL;
 
@@ -64,8 +67,32 @@ if (sttAuthType === 'cp4d') {
 
 // Init the APIs using environment-defined auth (default behavior).
 const speechToText = new SpeechToTextV1({ version: '2019-12-16' });
-const languageTranslator = new LanguageTranslatorV3({ version: '2019-12-16' });
 const textToSpeech = new TextToSpeechV1({ version: '2019-12-16' });
+
+// Optional Language Translator
+let languageTranslator = false;
+try {
+  languageTranslator = new LanguageTranslatorV3({ version: '2019-12-16' });
+} catch (err) {
+  console.log('Watson LT Error:', err.toString());
+  console.log('Continuing w/o Watson LT');
+}
+
+// Alternate Language Translator (only if no Watson LT)
+let altLanguageTranslator = false;
+let altLTUrl = false;
+
+if (!languageTranslator) {
+  altLTUrl = process.env.LINGVANEX_URL;
+  if (altLTUrl) {
+    altLanguageTranslator = true;
+  }
+}
+
+let modelFilter = parseInt(process.env.SPEECH_TO_TEXT_MODEL_FILTER, 10);
+if (Number.isNaN(modelFilter) === true) {
+  modelFilter = 8000;
+}
 
 // Get supported source language for Speech to Text
 let speechModels = [];
@@ -73,8 +100,10 @@ speechToText
   .listModels()
   .then(response => {
     speechModels = response.result.models; // The whole list
+    console.log('STT MODEL FILTER: ', modelFilter);
+    console.log('STT MODELS (before filter): ', speechModels);
     // Filter to only show one band.
-    speechModels = response.result.models.filter(model => model.rate > 8000); // TODO: Make it a .env setting
+    speechModels = response.result.models.filter(model => model.rate > modelFilter);
     // Make description be `[lang] description` so the sort-by-lang makes sense.
     speechModels = speechModels.map(m => ({ ...m, description: `[${m.language}]  ${m.description}` }));
     speechModels.sort(function(a, b) {  // eslint-disable-line
@@ -88,33 +117,62 @@ speechToText
 
 // Get supported language translation targets
 const modelMap = {};
-languageTranslator
-  .listModels()
-  .then(response => {
-    for (const model of response.result.models) {  // eslint-disable-line
-      const { source, target } = model;
-      if (!(source in modelMap)) {
-        modelMap[source] = new Set([target]);
-      } else {
-        modelMap[source].add(target);
+const altLangs = {};
+
+if (languageTranslator) {
+  languageTranslator
+    .listModels()
+    .then(response => {
+      for (const model of response.result.models) {  // eslint-disable-line
+        const { source, target } = model;
+        if (!(source in modelMap)) {
+          modelMap[source] = new Set([target]);
+        } else {
+          modelMap[source].add(target);
+        }
       }
+      // Turn Sets into arrays.
+      for (const k in modelMap) {  // eslint-disable-line
+        modelMap[k] = Array.from(modelMap[k]);
+      }
+    })
+    .catch(err => {
+      console.log('error: ', err);
+    });
+} else if (altLanguageTranslator) {
+  const getLanguagesUrl = `${altLTUrl}/get-languages`;
+  console.log('GET MODELS FROM: ', getLanguagesUrl);
+
+  axios.get(getLanguagesUrl).then(function(response) {
+    console.log('GET LANGUAGES RESPONSE: ', response.data);
+    let langs = new Set();
+        for (const l in response.data) {  // eslint-disable-line
+      console.log('LANG: ', response.data[l]);
+      langs.add(response.data[l].code_alpha_1); // collect list of langs
     }
-    // Turn Sets into arrays.
-    for (const k in modelMap) {  // eslint-disable-line
-      modelMap[k] = Array.from(modelMap[k]);
+    langs = Array.from(langs);
+        for (const l in response.data) {  // eslint-disable-line
+      modelMap[response.data[l].code_alpha_1] = langs; // anything-to-anything
+      altLangs[response.data[l].code_alpha_1] = response.data[l].codeName;
     }
-  })
-  .catch(err => {
-    console.log('error: ', err);
+    console.log('MODEL MAP: ', modelMap);
   });
+}
+
+let voiceFilter = process.env.TEXT_TO_SPEECH_VOICE_FILTER;
+if (typeof voiceFilter === 'undefined') {
+  voiceFilter = 'V3';
+}
 
 // Get supported source language for Speech to Text
 let voices = [];
 textToSpeech
   .listVoices()
   .then(response => {
+    console.log('TTS VOICE FILTER: ', voiceFilter);
+    console.log('TTS VOICES (before filter): ', response.result.voices);
     // There are many redundant voices. For now the V3 ones are the best ones.
-    voices = response.result.voices.filter(voice => voice.name.includes('V3')); // TODO: env param.
+    voices = response.result.voices.filter(voice => voice.name.includes(voiceFilter));
   })
   .catch(err => {
     console.log('error: ', err);
@@ -181,19 +239,54 @@ app.get('/api/v1/translate', async (req, res) => {
     target: req.query.voice.substring(0, 2)
   };
 
-  const doTranslate = ltParams.source !== ltParams.target;
+  const doTranslate = languageTranslator && ltParams.source !== ltParams.target;
 
   try {
     // Use language translator only when source language is not equal target language
     if (doTranslate) {
       const ltResult = await languageTranslator.translate(ltParams);
       req.query.text = ltResult.result.translations[0].translation;
+      console.log('TRANSLATED:', inputText, ' --->', req.query.text);
+    } else if (altLanguageTranslator) {
+      ltParams.q = ltParams.text;
+      ltParams.platform = 'api';
+
+      console.log('TRY ALT TRANSLATOR AT: ', altLTUrl);
+      const body = ltParams;
+      const response = await axios({
+        method: 'post',
+        url: `${altLTUrl}/translate`,
+        data: body,
+        headers: { accept: 'application/json', 'content-type': 'application/json' }
+      });
+      const data = await response.data;
+      console.log('RESPONSE: ', data);
+      req.query.text = data.translatedText;
     } else {
       // Same language, skip LT, use input text.
+      console.log('TRANSLATION SKIPPED:', inputText);
       req.query.text = inputText;
     }
 
-    console.log('TRANSLATED:', inputText, ' --->', req.query.text);
+    res.json({ translated: req.query.text });
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+});
+
+/**
+ * Fake Language Translator endpoint for testing -- just toUpper()
+ */
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.post('/api/v1/upper', async (req, res) => {
+  console.log('IN UPPER         -->', req.body);
+  const inputText = req.body.q;
+  try {
+    req.query.text = inputText.toUpperCase();
+    console.log('TRANSLATED TO UPPER:', inputText, ' --> ', req.query.text);
     res.json({ translated: req.query.text });
   } catch (error) {
     console.log(error);
@@ -225,6 +318,19 @@ app.get('/api/v1/synthesize', async (req, res, next) => {
 // Return the models, voices, and supported translations.
 app.get('/api/v1/voices', async (req, res, next) => {
   try {
+    // Add languages w/o voices (specifically for alternate translators)
+    for (const i in altLangs) {  // eslint-disable-line
+      if (voices.filter(voice => i === voice.language.substring(0, 2)).length < 1) {
+        // if this alt lang is not in voices, add a voice-less entry.
+        voices.push({
+          name: i,
+          description: `${altLangs[i]} translation without voice.`,
+          language: i,
+          url: '' // NO TTS URL!
+        });
+      }
+    }
+
     res.json({
       modelMap,
       models: speechModels,
