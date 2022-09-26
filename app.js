@@ -89,15 +89,21 @@ if (!languageTranslator) {
   }
 }
 
+modelFilter = parseInt(process.env.SPEECH_TO_TEXT_MODEL_FILTER)
+if (true == Number.isNaN(modelFilter)) {
+  modelFilter = 8000
+}
+
 // Get supported source language for Speech to Text
 let speechModels = [];
 speechToText
   .listModels()
   .then(response => {
     speechModels = response.result.models; // The whole list
+    console.log('STT MODEL FILTER: ', modelFilter);
     console.log('STT MODELS (before filter): ', speechModels);
     // Filter to only show one band.
-    speechModels = response.result.models.filter(model => model.rate > 8000); // TODO: Make it a .env setting
+    speechModels = response.result.models.filter(model => model.rate > modelFilter);
     // Make description be `[lang] description` so the sort-by-lang makes sense.
     speechModels = speechModels.map(m => ({ ...m, description: `[${m.language}]  ${m.description}` }));
     speechModels.sort(function(a, b) {  // eslint-disable-line
@@ -153,14 +159,20 @@ if (languageTranslator) {
   });
 }
 
+voiceFilter = process.env.TEXT_TO_SPEECH_VOICE_FILTER
+if (typeof voiceFilter === 'undefined') {
+  voiceFilter = 'V3'
+}
+
 // Get supported source language for Speech to Text
 let voices = [];
 textToSpeech
   .listVoices()
   .then(response => {
+    console.log('TTS VOICE FILTER: ', voiceFilter);
     console.log('TTS VOICES (before filter): ', response.result.voices);
     // There are many redundant voices. For now the V3 ones are the best ones.
-    voices = response.result.voices.filter(voice => voice.name.includes('V3')); // TODO: env param.
+    voices = response.result.voices.filter(voice => voice.name.includes(voiceFilter));
   })
   .catch(err => {
     console.log('error: ', err);
