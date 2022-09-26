@@ -89,9 +89,9 @@ if (!languageTranslator) {
   }
 }
 
-modelFilter = parseInt(process.env.SPEECH_TO_TEXT_MODEL_FILTER)
-if (true == Number.isNaN(modelFilter)) {
-  modelFilter = 8000
+let modelFilter = parseInt(process.env.SPEECH_TO_TEXT_MODEL_FILTER, 10);
+if (Number.isNaN(modelFilter) === true) {
+  modelFilter = 8000;
 }
 
 // Get supported source language for Speech to Text
@@ -159,9 +159,9 @@ if (languageTranslator) {
   });
 }
 
-voiceFilter = process.env.TEXT_TO_SPEECH_VOICE_FILTER
+let voiceFilter = process.env.TEXT_TO_SPEECH_VOICE_FILTER;
 if (typeof voiceFilter === 'undefined') {
-  voiceFilter = 'V3'
+  voiceFilter = 'V3';
 }
 
 // Get supported source language for Speech to Text
