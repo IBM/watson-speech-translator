@@ -1,3 +1,7 @@
+# WARNING: This repository is no longer maintained
+
+> This repository will not be updated. The repository will be kept available in read-only mode.
+
 # Create a language translator app with voice input and output
 
 In this code pattern, we will create a language translator web app. Built with React components
